@@ -6,7 +6,8 @@ requirement:
   json
   os
 
--"transformation_website":      
+# "transformation_website":      
+```
   git clone https://github.com/stevezhangz/lazyers-spring.git     
   cd lazyers-spring     
   ipython3 translation_website.py     
