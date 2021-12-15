@@ -1,0 +1,121 @@
+# -*- coding: utf-8 -*-
+import json
+import random
+
+class Word_lab:
+    def __init__(self,word_pth='vocab.json',
+                      size=1000,
+                      wrong_word_outdir=None):
+        try:
+            with open(word_pth,'r') as f:
+                self.vocab=json.load(f)
+        except:
+            print('no vocab, then build a new one')
+            self.vocab={}
+            self.vocab['CN']={}
+            self.vocab['ENG']={}
+        self.wrong_word_outdir=wrong_word_outdir
+        self.rate={}
+    
+    def english_test(self,test_size):
+        english_vocab=self.vocab['ENG']
+        keys=list(english_vocab.keys())
+        keys=random.sample(keys,test_size)
+        acc=0
+        total_r=0
+        wrong_answer={}
+        if len(list(self.vocab['ENG'].keys()))<test_size:
+            print('请添加足够的单词来提供测试')
+            return 
+        for i in keys:
+            total_r+=1
+            answer=english_vocab[i]
+            check=int(input(':请输入你的答案'))
+            if(answer==check):
+                acc+=1
+            else:
+                if self.wrong_word_outdir!=None:
+                    wrong_answer[i]=answer
+                if i not in self.rate:
+                        self.rate[i]=0
+                else:
+                    self.rate[i]+=1
+        final_acc=acc/total_r
+        if self.wrong_word_outdir!=None:
+            with open(self.wrong_word_outdir,'r') as f:
+                json.dump(wrong_answer,f)
+        
+        
+    def chinese_test(self,test_size):
+        if len(list(self.vocab['CN'].keys()))<test_size:
+               print('请添加足够的单词来提供测试')
+               return 
+        chinese_vocab=self.vocab['CN']
+        keys=list(chinese_vocab.keys())
+        keys=random.sample(keys,test_size)
+        acc=0
+        total_r=0
+        wrong_answer={}
+        if len(list(self.vocab['CN'].keys()))<test_size:
+            print('请添加足够的单词来提供测试')
+            return 
+        for i in keys:
+            total_r+=1
+            answer=chinese_vocab[i]
+            check=int(input(':请输入你的答案'))
+            if(answer==check):
+                acc+=1
+            else:
+                if self.wrong_word_outdir!=None:
+                    wrong_answer[i]=answer
+                    if i not in self.rate:
+                        self.rate[i]=0
+                    else:
+                        self.rate[i]+=1
+        final_acc=acc/total_r
+        if self.wrong_word_outdir!=None:
+            with open(self.wrong_word_outdir,'r') as f:
+                json.dump(wrong_answer,f)
+                
+    def loadwordfromtxt(self,dir_):
+        assert os.path.exists(dir_),print('no file found')
+        with open(dir_,'r') as f:
+            for line in f.readline():
+                ENG,CN=line.split('/')
+                CN=CN.split('\n')[0]
+                self.note(CN,ENG)
+    
+    def note(self,CN,ENG):
+        self.vocab['CN'][CN]=ENG
+        self.vocab['ENG'][ENG]=CN
+        with open(word_pth,'w') as f:
+            json.dump(self.vocab,f)
+        if len(list(self.vocab.keys()))>self.size:
+            del(self.vocab[list(self.vocab.keys())[0]])
+        
+    def option(self):
+        ENG_CN=int(input(": 选择英语测试还是中文测试还是添加词汇[1 英语测试 2 中文测试 3 添加词汇]"))
+        print(f'你的选择是：'+ {1:'中文测试',2:'英文测试',3:'添加词汇'}[ENG_CN])
+        if ENG_CN==1 or ENG_CN==2:
+            capacity=int(input(':你选择的测试容量为'))
+            test_op={1:'中文测试',2:'英文测试',3:'添加词汇'}[ENG_CN]
+            print(f'{test_op}测试开始····')
+            if ENG_CN==1:
+                self.chinese_test(capacity),
+            else:
+                self.english_test(capacity)
+        else:
+            ENG=input('请输入中文词汇')
+            CN=input('请输入英文词汇')
+            self.note(CN,ENG)
+            print('单词添加完毕！')
+        
+        
+        
+        
+if __name__=='__main__':
+    vocab_test_record=Word_lab(
+                      word_pth='vocab2.json',
+                      size=1000,
+                      wrong_word_outdir=None)
+    vocab_test_record.option()
